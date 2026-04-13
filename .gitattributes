@@ -1,12 +1,17 @@
+# Pastikan line endings konsisten
 * text=auto eol=lf
 
-*.blade.php diff=html
-*.css diff=css
-*.html diff=html
-*.md diff=markdown
-*.php diff=php
+# Paksa GitHub mendeteksi .blade.php sebagai Blade (atau PHP)
 *.blade.php linguist-language=Blade
 
+# Anggap file HTML, CSS, dan JS yang ada di project sebagai "vendored" 
+# (artinya: kode pendukung, jangan dihitung ke statistik utama)
+*.html linguist-vendored
+*.css linguist-vendored
+*.js linguist-vendored
+
+# Abaikan file dokumentasi dan konfigurasi dari statistik
 /.github export-ignore
 CHANGELOG.md export-ignore
 .styleci.yml export-ignore
+README.md linguist-documentation

@@ -11,7 +11,7 @@
             <p class="fs-11 text-muted fw-medium text-uppercase mb-0">
                 <span>Copyright ©</span>
                 <script>
-                    document.write(new Date().getFullYear());
+                    document.write(new window.Date().getFullYear());
                 </script>
                 <span class="ms-1">SIPUS SMEKDA</span>
             </p>

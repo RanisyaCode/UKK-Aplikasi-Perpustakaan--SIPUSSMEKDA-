@@ -131,6 +131,25 @@
         from { transform: translateY(100vh); opacity: 0.2; }
         to { transform: translateY(-10vh); opacity: 0; }
     }
+
+    /* Menyesuaikan Select Box & Dropdown Options */
+    .form-select {
+        background-color: var(--kaca) !important;
+        color: var(--teks-utama) !important;
+        border-color: var(--garis) !important;
+    }
+
+    /* Mengubah warna dropdown (isi pilihan) */
+    .form-select option {
+        background-color: var(--bg-body); /* Mengikuti warna background tema */
+        color: var(--teks-utama);
+    }
+
+    /* Fokus state */
+    .form-select:focus {
+        border-color: var(--emerald) !important;
+        box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+    }
 </style>
 
 <div class="admin-catalog">

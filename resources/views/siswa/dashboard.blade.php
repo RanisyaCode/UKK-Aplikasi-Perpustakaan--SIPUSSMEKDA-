@@ -229,6 +229,63 @@
         .btn-mewah-inner { background: var(--gradasi); color: white !important; }
         .btn-outline-inner { background: var(--bg-body); color: var(--teks-utama); }
 
+        /* --- SEARCH & FILTER SECTION --- */
+        .search-container {
+            background: var(--kaca);
+            border: 1px solid var(--garis);
+            border-radius: 25px;
+            padding: 10px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            transition: 0.3s;
+        }
+
+        .search-container:focus-within {
+            border-color: var(--emerald);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+        }
+
+        .search-input {
+            background: transparent;
+            border: none;
+            color: var(--teks-utama);
+            width: 100%;
+            padding: 10px 0;
+            outline: none;
+            font-weight: 600;
+        }
+
+        .category-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .category-scroll::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        .cat-pill {
+            padding: 8px 22px;
+            background: var(--kaca);
+            border: 1px solid var(--garis);
+            border-radius: 50px;
+            color: var(--teks-muted);
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .cat-pill:hover, .cat-pill.active {
+            background: var(--emerald);
+            color: white;
+            border-color: var(--emerald);
+        }
+
         /* --- CATALOG --- */
         .grid-buku { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 30px; padding: 50px 6%; }
         .kartu-buku { text-decoration: none; color: var(--teks-utama); display: block; }
@@ -258,7 +315,6 @@
                         ? 'duralux/assets/images/avatar/profilcewe.png' 
                         : 'duralux/assets/images/avatar/profilcowo.avif';
 
-        // Menggunakan catch agar jika Model Profile juga bermasalah, halaman tidak crash
         try {
             $userProfile = \App\Models\Profile::where('user_id', auth()->id())->first();
         } catch (\Exception $e) {
@@ -274,7 +330,6 @@
         /* LOGIKA POPUP REMINDER (ANTI-ERROR) */
         $notifikasiData = [];
         
-        // Coba beberapa kemungkinan nama Model yang sering dipakai
         $modelName = null;
         if (class_exists('App\Models\Peminjaman')) {
             $modelName = 'App\Models\Peminjaman';
@@ -311,7 +366,6 @@
                     }
                 }
             } catch (\Exception $e) {
-                // Diamkan jika terjadi error database/relasi agar dashboard tetap tampil
             }
         }
     @endphp
@@ -402,19 +456,41 @@
     </section>
 
     <section id="katalog" style="padding: 100px 6% 0;">
-        <h2 class="fw-800" style="color: var(--teks-utama);">Koleksi Buku</h2>
-        <p style="color: var(--teks-muted);">Jelajahi buku-buku terbaik di SMEKDA</p>
+        <div class="row align-items-end mb-4">
+            <div class="col-lg-6">
+                <h2 class="fw-800" style="color: var(--teks-utama);">Koleksi Buku</h2>
+                <p style="color: var(--teks-muted);">Jelajahi buku-buku terbaik di SMEKDA</p>
+            </div>
+            <div class="col-lg-6">
+                <div class="search-container">
+                    <i class="bi bi-search" style="color: var(--emerald);"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari judul buku atau penulis...">
+                </div>
+            </div>
+        </div>
 
-        <div class="grid-buku">
+        <div class="category-scroll mb-2">
+            <div class="cat-pill active" data-category="all">Semua</div>
+            <div class="cat-pill" data-category="novel">Novel</div>
+            <div class="cat-pill" data-category="pelajaran">Pelajaran</div>
+            <div class="cat-pill" data-category="biografi">Biografi</div>
+            <div class="cat-pill" data-category="komik">Komik</div>
+            <div class="cat-pill" data-category="teknologi">Teknologi</div>
+            <div class="cat-pill" data-category="sejarah">Sejarah</div>
+        </div>
+
+        <div class="grid-buku" id="bookGrid">
             @foreach ($daftarBuku ?? [] as $item)
-            <div class="book-card">
-                <a href="#" class="kartu-buku" data-bs-toggle="modal" data-bs-target="#modalDetail{{ $item->id }}">
-                    <div class="sampul">
-                        <img src="{{ $item->cover ? asset('storage/covers/' . $item->cover) : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500' }}">
-                    </div>
-                    <h6 class="fw-bold mb-1 text-truncate">{{ $item->judul }}</h6>
-                    <p style="color: var(--teks-muted);" class="small">{{ $item->penulis }}</p>
-                </a>
+            <div class="book-card-wrapper" data-judul="{{ strtolower($item->judul) }}" data-penulis="{{ strtolower($item->penulis) }}" data-kategori="{{ strtolower($item->kategori ?? 'pelajaran') }}">
+                <div class="book-card">
+                    <a href="#" class="kartu-buku" data-bs-toggle="modal" data-bs-target="#modalDetail{{ $item->id }}">
+                        <div class="sampul">
+                            <img src="{{ $item->cover ? asset('storage/covers/' . $item->cover) : 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500' }}">
+                        </div>
+                        <h6 class="fw-bold mb-1 text-truncate">{{ $item->judul }}</h6>
+                        <p style="color: var(--teks-muted);" class="small">{{ $item->penulis }}</p>
+                    </a>
+                </div>
             </div>
 
             <div class="modal fade" id="modalDetail{{ $item->id }}" tabindex="-1" aria-hidden="true">
@@ -452,6 +528,12 @@
             </div>
             @endforeach
         </div>
+        
+        <div id="noBookMessage" class="text-center py-5 d-none">
+            <i class="bi bi-search fs-1 mb-3 d-block" style="color: var(--teks-muted);"></i>
+            <h5 style="color: var(--teks-utama);">Buku tidak ditemukan</h5>
+            <p style="color: var(--teks-muted);">Coba cari dengan kata kunci lain atau kategori berbeda.</p>
+        </div>
     </section>
 
     <footer class="footer-final">
@@ -461,6 +543,50 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // --- LOGIKA FILTER PENCARIAN & KATEGORI (FITUR BARU) ---
+        const searchInput = document.getElementById('searchInput');
+        const catPills = document.querySelectorAll('.cat-pill');
+        const bookCards = document.querySelectorAll('.book-card-wrapper');
+        const noBookMsg = document.getElementById('noBookMessage');
+
+        function filterBooks() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeCat = document.querySelector('.cat-pill.active').getAttribute('data-category');
+            let foundCount = 0;
+
+            bookCards.forEach(card => {
+                const title = card.getAttribute('data-judul');
+                const author = card.getAttribute('data-penulis');
+                const category = card.getAttribute('data-kategori');
+
+                const matchesSearch = title.includes(searchTerm) || author.includes(searchTerm);
+                const matchesCat = activeCat === 'all' || category === activeCat;
+
+                if (matchesSearch && matchesCat) {
+                    card.classList.remove('d-none');
+                    foundCount++;
+                } else {
+                    card.classList.add('d-none');
+                }
+            });
+
+            if (foundCount === 0) {
+                noBookMsg.classList.remove('d-none');
+            } else {
+                noBookMsg.classList.add('d-none');
+            }
+        }
+
+        searchInput.addEventListener('input', filterBooks);
+
+        catPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                catPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                filterBooks();
+            });
+        });
+
         // --- LOGIKA AUTO ACTIVE NAVLINK ---
         const sections = document.querySelectorAll("section");
         const navLinks = document.querySelectorAll(".nav-link-custom");
